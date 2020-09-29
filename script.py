@@ -1,4 +1,6 @@
 print(1, True, "str", 1.23)
+l = [1,True,[3.141,1.414],"hello"]
+print(l)
 a = 2
 while a <= 100:
     i = 2
@@ -6,7 +8,7 @@ while a <= 100:
     while i < a:
         if a % i == 0:
             f = False
-        i = i + 1
+        i += 1
     if f:
         print(a)
-    a = a + 1
+    a += 1

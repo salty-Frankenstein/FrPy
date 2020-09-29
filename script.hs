@@ -3,21 +3,23 @@ import PyGen
 main :: IO ()
 main = writeFile "script.py" $ runScript $ 
     pydo [
-        pyignore $ pycall (var "print") [vi 1,vb True, vs "str", vf 1.23],
-        var "a" ?= vi 2,
-        pywhile (var "a" ?<= vi 100) $ pydo [
-            var "i" ?= vi 2,
-            var "f" ?= vb True,
+        pyignore $ pycall (var "print") [vI 1,vB True, vS "str", vF 1.23],
+        var "l" ?= vL [vI 1, vB True, vL [vF 3.141, vF 1.414], vS "hello"],
+        pyignore $ pyMACRO "print(l)",
+        var "a" ?= vI 2,
+        pywhile (var "a" ?<= vI 100) $ pydo [
+            var "i" ?= vI 2,
+            var "f" ?= vB True,
             pywhile (var "i" ?< var "a") $ pydo [
-                pyif (var "a" ?% var "i" ?== vi 0) 
-                    (var "f" ?= vb False)
+                pyif (var "a" ?% var "i" ?== vI 0) 
+                    (var "f" ?= vB False)
                 pyend,
-                var "i" ?= var "i" ?+ vi 1
+                var "i" ?+= vI 1
             ],
             pyif (var "f")
                 (pyignore $ pycall (var "print") [var "a"])
             pyend,
-            var "a" ?= var "a" ?+ vi 1
+            var "a" ?+= vI 1
         ]
     ]
 

@@ -1,17 +1,19 @@
 module PyGen (
-    var, vi, vf, vb, vs,        -- expression constructors
+    var, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
-    (?+), (?-), (?*), (?/), (?//), (?%),
-    (?=),   -- statement operators
-    pyif, pyend, pyelse, pydo, pyignore, pywhile, pycall, -- keywords
+    (?+), (?-), (?*), (?/), (?//), (?%), (?**),
+    (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=),  -- statement operators
+    pyif, pyend, pyelse, pydo, pyignore, pywhile, pycall, pyMACRO, -- keywords
     runScript   -- interface
 ) where
+
 
 data PyExpr = Name String
     | ValInt Integer
     | ValFloat Float
     | ValBool Bool
     | ValString String
+    | ValList [PyExpr]
     | PyAnd PyExpr PyExpr
     | PyOr PyExpr PyExpr
     | PyNot PyExpr
@@ -29,9 +31,17 @@ data PyExpr = Name String
     | PyMod PyExpr PyExpr
     | PyPow PyExpr PyExpr
     | Call PyExpr [PyExpr]      -- function call: function name and arguments
+    | Macro String              -- interesting macros, can be used in stmts with Expr $ Macro ...
     deriving (Show, Eq)
 
 data PyStmt = Assign PyExpr PyExpr
+    | AssignAdd PyExpr PyExpr
+    | AssignSub PyExpr PyExpr
+    | AssignMul PyExpr PyExpr
+    | AssignDiv PyExpr PyExpr
+    | AssignFlrDiv PyExpr PyExpr
+    | AssignMod PyExpr PyExpr
+    | AssignPow PyExpr PyExpr
     | IfThen PyExpr PyStmt
     | IfThenElse PyExpr PyStmt PyStmt
     | While PyExpr PyStmt
@@ -45,6 +55,7 @@ eval (ValInt i) = show i
 eval (ValFloat f) = show f
 eval (ValBool b) = show b
 eval (ValString s) = show s
+eval (ValList l) = "[" ++ (init $ concat $ map ((++",").eval) l) ++ "]"
 eval (PyAdd e1 e2) = eval e1 ++ " + " ++ eval e2
 eval (PySub e1 e2) = eval e1 ++ " - " ++ eval e2
 eval (PyMul e1 e2) = eval e1 ++ " * " ++ eval e2
@@ -61,6 +72,7 @@ eval (PyLe e1 e2) = eval e1 ++ " <= " ++ eval e2
 eval (PyGr e1 e2) = eval e1 ++ " > " ++ eval e2
 eval (PyGe e1 e2) = eval e1 ++ " >= " ++ eval e2
 eval (Call f arg) = eval f ++ "(" ++ (init.init $ concat $ map ((++", ").eval) arg) ++ ")"
+eval (Macro m) = m
 
 genBlock :: PyStmt -> [String]
 genBlock block = map ("    "++) $ generate block
@@ -69,6 +81,14 @@ genBlock block = map ("    "++) $ generate block
 generate :: PyStmt -> [String]
 generate (Expr expr) = [eval expr]
 generate (Assign name expr) = [eval name ++ " = " ++ eval expr]
+generate (AssignAdd name expr) = [eval name ++ " += " ++ eval expr]
+generate (AssignSub name expr) = [eval name ++ " -= " ++ eval expr]
+generate (AssignMul name expr) = [eval name ++ " *= " ++ eval expr]
+generate (AssignDiv name expr) = [eval name ++ " /= " ++ eval expr]
+generate (AssignFlrDiv name expr) = [eval name ++ " //= " ++ eval expr]
+generate (AssignMod name expr) = [eval name ++ " %= " ++ eval expr]
+generate (AssignPow name expr) = [eval name ++ " **= " ++ eval expr]
+
 generate (IfThen cond stmt) = ["if " ++ eval cond ++ ":"] ++ genBlock stmt
 generate (IfThenElse cond stmt1 stmt2) =
     ["if " ++ eval cond ++ ":"]
@@ -84,12 +104,14 @@ runScript = concat.(map (++"\n")).generate
 
 {- definition of the DSL syntax, some syntactic sugar -}
 var = Name
-vi = ValInt
-vf = ValFloat
-vb = ValBool
-vs = ValString
+vI = ValInt
+vF = ValFloat
+vB = ValBool
+vS = ValString
+vL = ValList
 pynot = PyNot
 pycall = Call
+pyMACRO = Macro
 
 infixr 2 ?||
 (?||) :: PyExpr -> PyExpr -> PyExpr
@@ -120,10 +142,20 @@ infixl 7 ?*, ?/, ?//, ?%
 (?//) = PyFlrDiv
 (?%) = PyMod
 
+infixr 8 ?**
+(?**) :: PyExpr -> PyExpr -> PyExpr
+(?**) = PyPow
 
-infix 0 ?=
-(?=) :: PyExpr -> PyExpr -> PyStmt
+infix 0 ?=, ?+=, ?-=, ?*=, ?/=, ?//=, ?%=, ?**=
+(?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=) :: PyExpr -> PyExpr -> PyStmt
 (?=) = Assign 
+(?+=) = AssignAdd
+(?-=) = AssignSub
+(?*=) = AssignMul
+(?/=) = AssignDiv
+(?//=) = AssignFlrDiv
+(?%=) = AssignMod
+(?**=) = AssignPow
 
 data PyKey = Pyend | Pyelse PyStmt
 
