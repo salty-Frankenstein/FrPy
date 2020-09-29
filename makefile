@@ -1,8 +1,9 @@
 PyGen: PyGen.hs
-	stack ghc PyGen.hs
-	./PyGen
+	stack ghc script.hs
+	./script
+	python3 script.py
 clean:
 	rm *.o
-	rm PyGen
+	rm ./script
 	rm *.hi
 

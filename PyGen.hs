@@ -1,3 +1,5 @@
+module PyGen where
+
 data PyExpr = Name String
     | ValInt Integer
     | ValFloat Float
@@ -60,6 +62,7 @@ infixl 7 ?*, ?/, ?//, ?%
 data PyStmt = Assign PyExpr PyExpr
     | IfThen PyExpr PyStmt
     | IfThenElse PyExpr PyStmt PyStmt
+    | Call PyExpr [PyExpr]      -- function call: function name and arguments
     | Block [PyStmt]
     deriving (Show, Eq)
 
@@ -88,17 +91,28 @@ eval (PyGr e1 e2) = eval e1 ++ " > " ++ eval e2
 eval (PyGe e1 e2) = eval e1 ++ " >= " ++ eval e2
 
 genBlock :: PyStmt -> String
-genBlock block = concat $ map ("    "++) $ generate block
+genBlock block = concat $ map (("    "++).(++"\n")) $ generate block
 
 generate :: PyStmt -> [String]
 generate (Assign name expr) = [eval name ++ " = " ++ eval expr]
-generate (IfThen cond stmt) = ["if " ++ eval cond ++ ":\n", genBlock stmt]
+generate (IfThen cond stmt) = ["if " ++ eval cond ++ ":", genBlock stmt]
 generate (IfThenElse cond stmt1 stmt2) =
-    ["if " ++ eval cond ++ ":\n", 
-    genBlock stmt1 ++ "\n",
-    "else:\n", 
+    ["if " ++ eval cond ++ ":", 
+    genBlock stmt1,
+    "else:",
     genBlock stmt2]
-generate (Block l) = map ((++"\n").concat.generate) l
+generate (Call f arg) = [eval f ++ "(" ++ (init.init $ concat $ map ((++", ").eval) arg) ++ ")"]
+generate (Block l) = map (concat.(map (++"\n")).generate) l
+
+removeLn ::  Bool -> String -> String
+removeLn _ [] = []
+removeLn False (x:xs) = if x /= '\n' then x : removeLn False xs
+    else x: removeLn True xs
+removeLn True (x:xs) = if x /= '\n' then x : removeLn False xs
+    else removeLn True xs
+
+runScript :: PyStmt -> String
+runScript = concat.(map $ (++"\n").(removeLn False)).generate
 
 infix 0 ?=
 (?=) :: PyExpr -> PyExpr -> PyStmt
@@ -110,20 +124,4 @@ pyif cond stmt1 (Pyelse stmt2) = IfThenElse cond stmt1 stmt2
 pyend = Pyend
 pyelse = Pyelse
 pydo = Block
-
-main :: IO ()
-main = putStrLn.concat.generate $ 
-    let ifstmt = pyif (var "a" ?== vi 1) (var "a" ?= vi 2) pyend in
-        pydo [
-            var "a" ?= vi 1,
-            ifstmt,
-            pyif (var "a" ?>= vi 0 ?&& pynot (vb True))
-                ifstmt $ 
-            pyelse $
-                pydo [
-                    var "a" ?= vi 4, 
-                    var "b" ?= vf 3.14,
-                    var "c" ?= var "a" ?+ var "b" ?* vf 4.7
-                ]
-        ]
 
