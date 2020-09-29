@@ -1,15 +1,12 @@
 print(1, True, "str", 1.23)
-
-a = 1
-
-if a == 1:
-    a = 2
-
-if a >= 0 and  not True:
-    if a == 1:
-        a = 2
-else:
-    a = 4
-    b = 3.14
-    c = a + b * 4.7
-
+a = 2
+while a <= 100:
+    i = 2
+    f = True
+    while i < a:
+        if a % i == 0:
+            f = False
+        i = i + 1
+    if f:
+        print(a)
+    a = a + 1

@@ -62,6 +62,7 @@ infixl 7 ?*, ?/, ?//, ?%
 data PyStmt = Assign PyExpr PyExpr
     | IfThen PyExpr PyStmt
     | IfThenElse PyExpr PyStmt PyStmt
+    | While PyExpr PyStmt
     | Call PyExpr [PyExpr]      -- function call: function name and arguments
     | Block [PyStmt]
     deriving (Show, Eq)
@@ -90,29 +91,23 @@ eval (PyLe e1 e2) = eval e1 ++ " <= " ++ eval e2
 eval (PyGr e1 e2) = eval e1 ++ " > " ++ eval e2
 eval (PyGe e1 e2) = eval e1 ++ " >= " ++ eval e2
 
-genBlock :: PyStmt -> String
-genBlock block = concat $ map (("    "++).(++"\n")) $ generate block
+genBlock :: PyStmt -> [String]
+genBlock block = map ("    "++) $ generate block
 
 generate :: PyStmt -> [String]
 generate (Assign name expr) = [eval name ++ " = " ++ eval expr]
-generate (IfThen cond stmt) = ["if " ++ eval cond ++ ":", genBlock stmt]
+generate (IfThen cond stmt) = ["if " ++ eval cond ++ ":"] ++ genBlock stmt
 generate (IfThenElse cond stmt1 stmt2) =
-    ["if " ++ eval cond ++ ":", 
-    genBlock stmt1,
-    "else:",
-    genBlock stmt2]
+    ["if " ++ eval cond ++ ":"]
+    ++ genBlock stmt1
+    ++ ["else:"]
+    ++ genBlock stmt2
+generate (While cond stmt) = ["while " ++ eval cond ++ ":"] ++ genBlock stmt
 generate (Call f arg) = [eval f ++ "(" ++ (init.init $ concat $ map ((++", ").eval) arg) ++ ")"]
-generate (Block l) = map (concat.(map (++"\n")).generate) l
-
-removeLn ::  Bool -> String -> String
-removeLn _ [] = []
-removeLn False (x:xs) = if x /= '\n' then x : removeLn False xs
-    else x: removeLn True xs
-removeLn True (x:xs) = if x /= '\n' then x : removeLn False xs
-    else removeLn True xs
+generate (Block l) = concat $ map generate l
 
 runScript :: PyStmt -> String
-runScript = concat.(map $ (++"\n").(removeLn False)).generate
+runScript = concat.(map (++"\n")).generate
 
 infix 0 ?=
 (?=) :: PyExpr -> PyExpr -> PyStmt
@@ -124,4 +119,6 @@ pyif cond stmt1 (Pyelse stmt2) = IfThenElse cond stmt1 stmt2
 pyend = Pyend
 pyelse = Pyelse
 pydo = Block
+pywhile = While
+
 
