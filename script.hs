@@ -3,7 +3,7 @@ import PyGen
 main :: IO ()
 main = writeFile "script.py" $ runScript $ 
     pydo [
-        Call (var "print") [vi 1,vb True, vs "str", vf 1.23],
+        pyignore $ pycall (var "print") [vi 1,vb True, vs "str", vf 1.23],
         var "a" ?= vi 2,
         pywhile (var "a" ?<= vi 100) $ pydo [
             var "i" ?= vi 2,
@@ -15,7 +15,7 @@ main = writeFile "script.py" $ runScript $
                 var "i" ?= var "i" ?+ vi 1
             ],
             pyif (var "f")
-                (Call (var "print") [var "a"])
+                (pyignore $ pycall (var "print") [var "a"])
             pyend,
             var "a" ?= var "a" ?+ vi 1
         ]
