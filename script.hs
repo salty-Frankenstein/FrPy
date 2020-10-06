@@ -1,25 +1,20 @@
 import PyGen
 
+defFib :: PyStmt
+defFib = pydef "fibTail" [var "n", var "a", var "b"] $ pydo [
+        pyif (var "n" ?== vI 1)
+            (pyret $ var "a")
+        pyend,
+        pyret $ pycall (var "fibTail") [var "n" ?- vI 1, var "b", var "a" ?+ var "b"]
+    ]
+
 main :: IO ()
 main = writeFile "script.py" $ runScript $ 
     pydo [
-        pyignore $ pycall (var "print") [vI 1,vB True, vS "str", vF 1.23],
-        var "l" ?= vL [vI 1, vB True, vL [vF 3.141, vF 1.414], vS "hello"],
-        pyignore $ pyMACRO "print(l)",
-        var "a" ?= vI 2,
-        pywhile (var "a" ?<= vI 100) $ pydo [
-            var "i" ?= vI 2,
-            var "f" ?= vB True,
-            pywhile (var "i" ?< var "a") $ pydo [
-                pyif (var "a" ?% var "i" ?== vI 0) 
-                    (var "f" ?= vB False)
-                pyend,
-                var "i" ?+= vI 1
-            ],
-            pyif (var "f")
-                (pyignore $ pycall (var "print") [var "a"])
-            pyend,
-            var "a" ?+= vI 1
+        defFib,
+        pydef "fib" [var "n"] $ pyret $ pycall (var "fibTail") [var "n", vI 1, vI 1],
+        pyfor(var "i" ?= vI 1, var "i" ?<= vI 10, var "i" ?+= vI 1) $ pydo [
+            pyignore $ pycall (var "print") [pycall (var "fib") [var "i"]]
         ]
     ]
 

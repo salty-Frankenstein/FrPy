@@ -1,14 +1,17 @@
 module PyGen (
+    PyExpr, PyStmt,                 -- types may be used
     var, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
     (?+), (?-), (?*), (?/), (?//), (?%), (?**),
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=),  -- statement operators
-    pyif, pyend, pyelse, pydo, pyignore, pywhile, pycall, pyMACRO, -- keywords
+    pyif, pyend, pyelse, pydo, pyignore, pywhile, pyfor, pycall, pyMACRO, -- keywords
+    pydef, pyret,
     runScript   -- interface
 ) where
 
+data PyName = PyName String deriving (Show, Eq)
 
-data PyExpr = Name String
+data PyExpr = Name PyName
     | ValInt Integer
     | ValFloat Float
     | ValBool Bool
@@ -45,12 +48,23 @@ data PyStmt = Assign PyExpr PyExpr
     | IfThen PyExpr PyStmt
     | IfThenElse PyExpr PyStmt PyStmt
     | While PyExpr PyStmt
+    | For PyStmt PyExpr PyStmt PyStmt   -- C-like for-loop statement
+    | Define String [PyExpr] PyStmt    -- function definition: name, parameters and body statement
+    | Return PyExpr
     | Block [PyStmt]
     | Expr PyExpr
     deriving (Show, Eq)
 
+-- check the expression type for assertions
+isName :: PyExpr -> Bool
+isName (Name n) = True
+isName _ = False
+
+getName :: PyName -> String
+getName (PyName n) = n
+
 eval :: PyExpr -> String
-eval (Name n) = n
+eval (Name (PyName n)) = n
 eval (ValInt i) = show i
 eval (ValFloat f) = show f
 eval (ValBool b) = show b
@@ -96,6 +110,19 @@ generate (IfThenElse cond stmt1 stmt2) =
     ++ ["else:"]
     ++ genBlock stmt2
 generate (While cond stmt) = ["while " ++ eval cond ++ ":"] ++ genBlock stmt
+generate (For init cond inc stmt) = 
+    generate init
+    ++ ["while " ++ eval cond ++ ":"]
+    ++ genBlock stmt
+    ++ genBlock inc
+
+generate (Define name para stmt) = 
+    if and $ map isName para then
+        ["def " ++ name ++ "(" ++ (init.init.concat.(map ((++", ").eval))) para ++ "):"]
+        ++ genBlock stmt
+        ++ [""]
+    else error "function parameter error"
+generate (Return expr) = ["return " ++ eval expr]
 generate (Block l) = concat $ map generate l
 
 {- the interface for using this DSL -}
@@ -103,7 +130,7 @@ runScript :: PyStmt -> String
 runScript = concat.(map (++"\n")).generate
 
 {- definition of the DSL syntax, some syntactic sugar -}
-var = Name
+var = Name . PyName
 vI = ValInt
 vF = ValFloat
 vB = ValBool
@@ -165,7 +192,11 @@ pyif cond stmt1 (Pyelse stmt2) = IfThenElse cond stmt1 stmt2
 pyend = Pyend
 pyelse = Pyelse
 pydo = Block
+
+pyfor :: (PyStmt, PyExpr, PyStmt) -> PyStmt -> PyStmt
+pyfor (init, cond, inc) stmt = For init cond inc stmt
 pyignore = Expr
 pywhile = While
-
+pydef = Define
+pyret = Return
 

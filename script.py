@@ -1,14 +1,12 @@
-print(1, True, "str", 1.23)
-l = [1,True,[3.141,1.414],"hello"]
-print(l)
-a = 2
-while a <= 100:
-    i = 2
-    f = True
-    while i < a:
-        if a % i == 0:
-            f = False
-        i += 1
-    if f:
-        print(a)
-    a += 1
+def fibTail(n, a, b):
+    if n == 0:
+        return a
+    return fibTail(n - 1, b, a + b)
+
+def fib(n):
+    return fibTail(n, 0, 1)
+
+i = 1
+while i <= 10:
+    print(fib(i))
+    i += 1
