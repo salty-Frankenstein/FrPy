@@ -2,6 +2,7 @@ module PyGen (
     PyExpr, PyStmt,                 -- types may be used
     var, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
+    (?<|), (?|>), (?->),
     (?+), (?-), (?*), (?/), (?//), (?%), (?**),
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=),  -- statement operators
     pyif, pyend, pyelse, pydo, pyignore, pywhile, pyfor, pycall, pyMACRO, -- keywords
@@ -34,6 +35,7 @@ data PyExpr = Name PyName
     | PyMod PyExpr PyExpr
     | PyPow PyExpr PyExpr
     | Call PyExpr [PyExpr]      -- function call: function name and arguments
+    | Lambda PyExpr PyExpr
     | Macro String              -- interesting macros, can be used in stmts with Expr $ Macro ...
     deriving (Show, Eq)
 
@@ -86,6 +88,9 @@ eval (PyLe e1 e2) = eval e1 ++ " <= " ++ eval e2
 eval (PyGr e1 e2) = eval e1 ++ " > " ++ eval e2
 eval (PyGe e1 e2) = eval e1 ++ " >= " ++ eval e2
 eval (Call f arg) = eval f ++ "(" ++ (init.init $ concat $ map ((++", ").eval) arg) ++ ")"
+eval (Lambda x expr) = 
+    if isName x then "lambda " ++ eval x ++ ": " ++ eval expr
+    else error "lambda function parameter error"
 eval (Macro m) = m
 
 genBlock :: PyStmt -> [String]
@@ -140,6 +145,15 @@ pynot = PyNot
 pycall = Call
 pyMACRO = Macro
 
+{- pipelines -}
+infixr 0 ?<|
+(?<|) :: PyExpr -> PyExpr -> PyExpr
+(?<|) f x = Call f [x]
+
+infixl 1 ?|>
+(?|>) :: PyExpr -> PyExpr -> PyExpr
+(?|>) x f = Call f [x]
+
 infixr 2 ?||
 (?||) :: PyExpr -> PyExpr -> PyExpr
 (?||) = PyOr
@@ -183,6 +197,10 @@ infix 0 ?=, ?+=, ?-=, ?*=, ?/=, ?//=, ?%=, ?**=
 (?//=) = AssignFlrDiv
 (?%=) = AssignMod
 (?**=) = AssignPow
+
+infixr 1 ?->
+(?->) :: PyExpr -> PyExpr -> PyExpr
+(?->) = Lambda
 
 data PyKey = Pyend | Pyelse PyStmt
 
