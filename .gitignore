@@ -1,4 +1,5 @@
 PyGen
+script
 *.o
 *.hi
 *.exe
