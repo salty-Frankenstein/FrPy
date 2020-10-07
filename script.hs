@@ -1,6 +1,7 @@
 --import PyGen.Monadic
 import PyGen.Monadic.Clear
 
+defFib :: PyStmtM
 defFib = def "fibTail" [var "n", var "a", var "b"] $ 
     pydo $ do
         pyif (var "n" ?== vI 1) $ pydo $ do 

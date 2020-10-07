@@ -4,7 +4,7 @@
 -}
 
 module PyGen.Monadic.Clear (
-    PyExpr, PyStmt,                 -- types may be used
+    PyExpr, PyStmtM,                 -- types may be used
     var, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
     (<|), (|>), (-->),
@@ -21,7 +21,7 @@ import Control.Monad.Writer
 call = pycall
 ignore = pyignore
 
-call_ :: PyExpr -> [PyExpr] -> Writer [PyStmt] ()
+call_ :: PyExpr -> [PyExpr] -> PyStmtM
 call_ x y = pyignore $ pycall x y
 
 for = pyfor
