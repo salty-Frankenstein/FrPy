@@ -7,7 +7,7 @@ module PyGen.Monadic (
     PyExpr, PyStmtM,                 -- types may be used
     pyvar, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
-    (?<|), (?|>), (?->),
+    (?<~), (?<|), (?|>), (?->),
     (?+), (?-), (?*), (?/), (?//), (?%), (?**),
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=),  -- statement operators
     pyif, pyifelse, pydo, pyignore, pywhile, pyfor, pycall, pyMACRO, -- keywords

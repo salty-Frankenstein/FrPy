@@ -21,5 +21,5 @@ main = writeFile "script.py" $ runScript $
         var "inc" ?= var "x" --> var "x" ?+ vI 1                   -- lambda function
         var "add" ?= var "x" --> var "y" --> var "x" ?+ var "y"    -- currying
         ignore $ call (var "print") [call (call (var "add") [vI 1]) [vI 1]] -- pycalling
-        ignore $ var "print" <| (var "add" <| vI 1) <| vI 1 -- pycalling by pipelines
+        ignore $ var "print" <| var "add" <~ vI 1 <~ vI 1
         

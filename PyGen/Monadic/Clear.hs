@@ -7,7 +7,7 @@ module PyGen.Monadic.Clear (
     PyExpr, PyStmtM,                 -- types may be used
     var, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
-    (<|), (|>), (-->),
+    (<~), (<|), (|>), (-->),
     (?+), (?-), (?*), (?/), (?//), (?%), (?**),
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=),  -- statement operators
     pyif, pyifelse, pydo, ignore, while, for, call, call_, pyMACRO, -- keywords
@@ -29,6 +29,8 @@ while = pywhile
 def = pydef
 ret = pyret
 var = pyvar
+infixl 9 <~
+(<~) = (?<~)
 infixr 1 <|
 (|>) = (?|>)
 infixl 1 |>

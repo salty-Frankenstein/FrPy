@@ -7,7 +7,7 @@ module PyGen.Std (
     PyExpr, PyStmt,                 -- types may be used
     pyvar, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
-    (?<|), (?|>), (?->),
+    (?<~), (?<|), (?|>), (?->),
     (?+), (?-), (?*), (?/), (?//), (?%), (?**),
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=),  -- statement operators
     pyif, pyendif, pyelse, pydo, pyignore, pywhile, pyfor, pycall, pyMACRO, -- keywords
@@ -27,6 +27,11 @@ vL = ValList
 pynot = PyNot
 pycall = Call
 pyMACRO = Macro
+
+{- function application, highest priority -}
+infixl 9 ?<~
+(?<~) :: PyExpr -> PyExpr -> PyExpr
+(?<~) f x = Call f [x]
 
 {- pipelines -}
 infixr 1 ?<|
