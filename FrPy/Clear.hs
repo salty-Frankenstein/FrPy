@@ -3,7 +3,7 @@
     for simpler keywords and operators
 -}
 
-module PyGen.Clear (
+module FrPy.Clear (
     PyExpr, PyStmt,                 -- types may be used
     var, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
@@ -15,7 +15,7 @@ module PyGen.Clear (
     runScript   -- interface
 ) where
 
-import PyGen.Std
+import FrPy.Std
 
 call = pycall
 ignore = pyignore

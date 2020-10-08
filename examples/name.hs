@@ -1,4 +1,4 @@
-import PyGen
+import FrPy
 
 main :: IO ()
 main = writeFile "script.py" $ runScript $ 

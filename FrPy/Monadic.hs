@@ -3,7 +3,7 @@
     using Monads for do notation
 -}
 
-module PyGen.Monadic (
+module FrPy.Monadic (
     PyExpr, PyStmtM,                 -- types may be used
     pyvar, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
@@ -15,8 +15,8 @@ module PyGen.Monadic (
     runScript   -- interface
 ) where
 
-import PyGen.Core
-import PyGen.Std hiding (
+import FrPy.Core
+import FrPy.Std hiding (
     pyif, pyfor, pywhile, pyignore, pydef, pyret, pydo, pyelse,
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=) )
 import Control.Monad.Writer

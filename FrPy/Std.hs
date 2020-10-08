@@ -3,7 +3,7 @@
     the standard DSL syntax
 -}
 
-module PyGen.Std (
+module FrPy.Std (
     PyExpr, PyStmt,                 -- types may be used
     pyvar, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
@@ -15,7 +15,7 @@ module PyGen.Std (
     runScript   -- interface
 ) where
 
-import PyGen.Core
+import FrPy.Core
 
 {- definition of the DSL syntax, some syntactic sugar -}
 pyvar = Name . PyName

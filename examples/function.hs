@@ -1,4 +1,4 @@
-import PyGen.Clear
+import FrPy.Clear
 
 defFib :: PyStmt
 defFib = def "fibTail" [var "n", var "a", var "b"] $ pydo [

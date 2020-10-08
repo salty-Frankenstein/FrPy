@@ -3,7 +3,7 @@
     This module is not visible for users
 -}
 
-module PyGen.Core (
+module FrPy.Core (
     PyName(..), PyExpr(..), PyStmt(..),                 -- types may be used
     runScript   -- interface
 ) where

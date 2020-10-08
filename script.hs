@@ -1,5 +1,5 @@
---import PyGen.Monadic
-import PyGen.Monadic.Clear
+--import FrPy.Monadic
+import FrPy.Monadic.Clear
 
 defFib :: PyStmtM
 defFib = def "fibTail" [var "n", var "a", var "b"] $ 

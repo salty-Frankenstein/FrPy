@@ -3,7 +3,7 @@
     for simpler keywords and operators
 -}
 
-module PyGen.Monadic.Clear (
+module FrPy.Monadic.Clear (
     PyExpr, PyStmtM,                 -- types may be used
     var, vI, vF, vB, vS, vL,        -- expression constructors
     pynot, (?||), (?&&), (?==), (?!=), (?<), (?<=), (?>), (?>=),         -- operators
@@ -15,7 +15,7 @@ module PyGen.Monadic.Clear (
     runScript   -- interface
 ) where
 
-import PyGen.Monadic
+import FrPy.Monadic
 import Control.Monad.Writer
 
 call = pycall
