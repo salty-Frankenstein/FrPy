@@ -1,5 +1,5 @@
 {-
-    Core of DSL
+    Core of FrPy
     This module is not visible for users
 -}
 

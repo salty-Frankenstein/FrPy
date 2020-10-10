@@ -11,7 +11,7 @@ module FrPy.Monadic.Clear (
     (?+), (?-), (?*), (?/), (?//), (?%), (?**),
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=),  -- statement operators
     pyif, pyifelse, pydo, ignore, while, for, call, call_, pyMACRO, -- keywords
-    def, ret,
+    def, ret, pylet, pylet',
     runScript   -- interface
 ) where
 

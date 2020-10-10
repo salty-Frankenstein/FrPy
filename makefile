@@ -1,9 +1,9 @@
-PyGen: PyGen.hs
+script: script.hs
 	stack ghc script.hs
 	./script
 	python3 script.py
 clean:
-	rm *.o
-	rm ./script
-	rm *.hi
+	find . -name "*.o" | xargs rm -f
+	find . -name "*.hi" | xargs rm -f
+	rm -f ./script
 

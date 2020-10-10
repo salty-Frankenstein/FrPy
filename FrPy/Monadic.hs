@@ -11,13 +11,13 @@ module FrPy.Monadic (
     (?+), (?-), (?*), (?/), (?//), (?%), (?**),
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=),  -- statement operators
     pyif, pyifelse, pydo, pyignore, pywhile, pyfor, pycall, pyMACRO, -- keywords
-    pydef, pyret,
+    pydef, pyret, pylet, pylet',
     runScript   -- interface
 ) where
 
 import FrPy.Core
 import FrPy.Std hiding (
-    pyif, pyfor, pywhile, pyignore, pydef, pyret, pydo, pyelse,
+    pyif, pyfor, pywhile, pyignore, pydef, pyret, pylet, pydo, pyelse,
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=) )
 import Control.Monad.Writer
 
@@ -42,6 +42,9 @@ pydef name para stmt = writer ((), [Define name para stmt])
 
 pyret :: PyExpr -> Writer [PyStmt] ()
 pyret expr = writer ((), [Return expr])
+
+pylet :: String -> [PyExpr] -> PyExpr -> Writer [PyStmt] ()
+pylet name para expr = writer ((), [Assign (pyvar name) (pylet' para expr)])
 
 infix 1 ?=, ?+=, ?-=, ?*=, ?/=, ?//=, ?%=, ?**=
 (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=) :: PyExpr -> PyExpr -> Writer [PyStmt] ()

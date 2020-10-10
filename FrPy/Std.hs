@@ -1,6 +1,6 @@
 {-
     language extension: Std
-    the standard DSL syntax
+    the standard FrPy syntax
 -}
 
 module FrPy.Std (
@@ -11,13 +11,13 @@ module FrPy.Std (
     (?+), (?-), (?*), (?/), (?//), (?%), (?**),
     (?=), (?+=), (?-=), (?*=), (?/=), (?//=), (?%=), (?**=),  -- statement operators
     pyif, pyendif, pyelse, pydo, pyignore, pywhile, pyfor, pycall, pyMACRO, -- keywords
-    pydef, pyret,
+    pydef, pyret, pylet, pylet',
     runScript   -- interface
 ) where
 
 import FrPy.Core
 
-{- definition of the DSL syntax, some syntactic sugar -}
+{- definition of the FrPy syntax, some syntactic sugar -}
 pyvar = Name . PyName
 vI = ValInt
 vF = ValFloat
@@ -105,4 +105,11 @@ pyignore = Expr
 pywhile = While
 pydef = Define
 pyret = Return
+
+pylet' :: [PyExpr] -> PyExpr -> PyExpr
+pylet' [para] expr = para ?-> expr 
+pylet' (p:paras) expr = p ?-> pylet' paras expr 
+
+pylet :: String -> [PyExpr] -> PyExpr -> PyStmt
+pylet name paras expr = pyvar name ?= pylet' paras expr
 
